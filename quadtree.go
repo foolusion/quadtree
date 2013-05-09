@@ -1,4 +1,12 @@
+// Package quadtree implements methods for a quadtree spatial partitioning data
+// structure.
+//
+// Code is based on the Wikipedia article
+// http://en.wikipedia.org/wiki/Quadtree.
 package quadtree
+
+// node_capacity is the maximum number of points allowed in a quadtree node
+var node_capacity int = 4
 
 // XY is a simple coordinate structure for points and vectors
 type XY struct {
@@ -6,23 +14,24 @@ type XY struct {
 	Y float64
 }
 
-// creates a new point and returns address
+// NewXY creates a new point and returns address
 func NewXY(x, y float64) *XY {
 	return &XY{x, y}
 }
 
-// Axis-Aligned bounding box structure with center and half dimension
+// AABB represents an Axis-Aligned bounding box structure with center and half
+// dimension
 type AABB struct {
 	center  XY
 	halfDim XY
 }
 
-// creates a new aabb and returns its address
+// NewAABB creates a new axis-aligned bounding box and returns its address
 func NewAABB(center, halfDim XY) *AABB {
 	return &AABB{center, halfDim}
 }
 
-// Contains Point returns true when the AABB contains the point given
+// ContainsPoint returns true when the AABB contains the point given
 func (aabb *AABB) ContainsPoint(p XY) bool {
 	if p.X < aabb.center.X-aabb.halfDim.X {
 		return false
@@ -40,7 +49,7 @@ func (aabb *AABB) ContainsPoint(p XY) bool {
 	return true
 }
 
-// Intersects AABB returns true when the AABB intersects another AABB
+// IntersectsAABB returns true when the AABB intersects another AABB
 func (aabb *AABB) IntersectsAABB(other *AABB) bool {
 	if other.center.X+other.halfDim.X < aabb.center.X-aabb.halfDim.X {
 		return false
@@ -56,4 +65,16 @@ func (aabb *AABB) IntersectsAABB(other *AABB) bool {
 	}
 
 	return true
+}
+
+type QuadTree struct {
+	boundary                                   AABB
+	points                                     []*XY
+	northWest, northEast, southWest, southEast *QuadTree
+}
+
+func New(boundary AABB) {
+	points := make([]*XY, 0, node_capacity)
+	qt := &QuadTree{boundary: boundary, points: points}
+	return gt
 }
