@@ -13,21 +13,47 @@ func NewXY(x, y float64) *XY {
 
 // Axis-Aligned bounding box structure with center and half dimension
 type AABB struct {
-	TopLeft     XY
-	BottomRight XY
+	center  XY
+	halfDim XY
 }
 
 // creates a new aabb and returns its address
-func NewAABB(center, halfDimension XY) *AABB {
-	return &AABB{center, halfDimension}
+func NewAABB(center, halfDim XY) *AABB {
+	return &AABB{center, halfDim}
 }
 
 // Contains Point returns true when the AABB contains the point given
 func (aabb *AABB) ContainsPoint(p XY) bool {
-	return false
+	if p.X < aabb.center.X-aabb.halfDim.X {
+		return false
+	}
+	if p.Y < aabb.center.Y-aabb.halfDim.Y {
+		return false
+	}
+	if p.X > aabb.center.X+aabb.halfDim.X {
+		return false
+	}
+	if p.Y > aabb.center.Y+aabb.halfDim.Y {
+		return false
+	}
+
+	return true
 }
 
 // Intersects AABB returns true when the AABB intersects another AABB
-func (aabb *AABB) IntersectsAABB(other AABB) bool {
-	return false
+func (aabb *AABB) IntersectsAABB(other *AABB) bool {
+	if other.center.X+other.halfDim.X < aabb.center.X-aabb.halfDim.X {
+		return false
+	}
+	if other.center.Y+other.halfDim.Y < aabb.center.Y-aabb.halfDim.Y {
+		return false
+	}
+	if other.center.X-other.halfDim.X > aabb.center.X+aabb.halfDim.X {
+		return false
+	}
+	if other.center.Y-other.halfDim.Y > aabb.center.Y+aabb.halfDim.Y {
+		return false
+	}
+
+	return true
 }
