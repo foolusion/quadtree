@@ -67,14 +67,26 @@ func (aabb *AABB) IntersectsAABB(other *AABB) bool {
 	return true
 }
 
+// QuadTree represents the quadtree data structure.
 type QuadTree struct {
-	boundary                                   AABB
-	points                                     []*XY
-	northWest, northEast, southWest, southEast *QuadTree
+	boundary  AABB
+	points    []*XY
+	northWest *QuadTree
+	northEast *QuadTree
+	southWest *QuadTree
+	southEast *QuadTree
 }
 
-func New(boundary AABB) {
+// New creates a new quadtree node that is bounded by boundary and contains
+// node_capacity points.
+func New(boundary AABB) *QuadTree {
 	points := make([]*XY, 0, node_capacity)
 	qt := &QuadTree{boundary: boundary, points: points}
-	return gt
+	return qt
+}
+
+// Insert adds a point to the quadtree. It returns true if it was successful
+// and false otherwise.
+func (qt *QuadTree) Insert(p XY) bool {
+	return false
 }
