@@ -18,7 +18,7 @@ var containsPointsTests = []struct {
 
 func TestAABBContainsPoint(t *testing.T) {
 	for i, v := range containsPointsTests {
-		out := v.box.ContainsPoint(v.p)
+		out := v.box.ContainsPoint(&v.p)
 		if out != v.exp {
 			t.Errorf("%d. %v with input = %v: output %v expected %v", i, v.box, v.p, out, v.exp)
 		}

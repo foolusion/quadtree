@@ -32,7 +32,7 @@ func NewAABB(center, halfDim XY) *AABB {
 }
 
 // ContainsPoint returns true when the AABB contains the point given
-func (aabb *AABB) ContainsPoint(p XY) bool {
+func (aabb *AABB) ContainsPoint(p *XY) bool {
 	if p.X < aabb.center.X-aabb.halfDim.X {
 		return false
 	}
@@ -89,7 +89,7 @@ func New(boundary AABB) *QuadTree {
 // and false otherwise.
 func (qt *QuadTree) Insert(p *XY) bool {
 	// Ignore objects which do not belong in this quad tree.
-	if !qt.boundary.ContaintsPoint(p) {
+	if !qt.boundary.ContainsPoint(p) {
 		return false
 	}
 
@@ -111,14 +111,57 @@ func (qt *QuadTree) Insert(p *XY) bool {
 	if qt.northEast.Insert(p) {
 		return true
 	}
-	if qt.northWest.Insert(p) {
+	if qt.southWest.Insert(p) {
 		return true
 	}
-	if qt.southEast.insert(p) {
+	if qt.southEast.Insert(p) {
 		return true
 	}
 
 	// Otherwise, the point cannot be inserted for some unknown reason.
 	// (which should never happen)
 	return false
+}
+
+func (qt *QuadTree) subDivide() {
+	// Check if this is a leaf node.
+	if qt.northWest != nil {
+		return
+	}
+
+	box := AABB{
+		XY{qt.boundary.center.X - qt.boundary.halfDim.X/2, qt.boundary.center.Y + qt.boundary.halfDim.Y/2},
+		XY{qt.boundary.halfDim.X / 2, qt.boundary.halfDim.Y / 2}}
+	qt.northWest = New(box)
+
+	box = AABB{
+		XY{qt.boundary.center.X + qt.boundary.halfDim.X/2, qt.boundary.center.Y + qt.boundary.halfDim.Y/2},
+		XY{qt.boundary.halfDim.X / 2, qt.boundary.halfDim.Y / 2}}
+	qt.northEast = New(box)
+
+	box = AABB{
+		XY{qt.boundary.center.X - qt.boundary.halfDim.X/2, qt.boundary.center.Y - qt.boundary.halfDim.Y/2},
+		XY{qt.boundary.halfDim.X / 2, qt.boundary.halfDim.Y / 2}}
+	qt.southWest = New(box)
+
+	box = AABB{
+		XY{qt.boundary.center.X + qt.boundary.halfDim.X/2, qt.boundary.center.Y - qt.boundary.halfDim.Y/2},
+		XY{qt.boundary.halfDim.X / 2, qt.boundary.halfDim.Y / 2}}
+	qt.southEast = New(box)
+
+	for _, v := range qt.points {
+		if qt.northWest.Insert(v) {
+			continue
+		}
+		if qt.northEast.Insert(v) {
+			continue
+		}
+		if qt.southWest.Insert(v) {
+			continue
+		}
+		if qt.southEast.Insert(v) {
+			continue
+		}
+	}
+	qt.points = nil
 }
