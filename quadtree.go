@@ -87,6 +87,38 @@ func New(boundary AABB) *QuadTree {
 
 // Insert adds a point to the quadtree. It returns true if it was successful
 // and false otherwise.
-func (qt *QuadTree) Insert(p XY) bool {
+func (qt *QuadTree) Insert(p *XY) bool {
+	// Ignore objects which do not belong in this quad tree.
+	if !qt.boundary.ContaintsPoint(p) {
+		return false
+	}
+
+	// If there is space in this quad tree, add the object here.
+	if len(qt.points) < cap(qt.points) {
+		qt.points = append(qt.points, p)
+		return true
+	}
+
+	// Otherwise, we need to subdivide then add the point to whichever node
+	// will accept it.
+	if qt.northWest == nil {
+		qt.subDivide()
+	}
+
+	if qt.northWest.Insert(p) {
+		return true
+	}
+	if qt.northEast.Insert(p) {
+		return true
+	}
+	if qt.northWest.Insert(p) {
+		return true
+	}
+	if qt.southEast.insert(p) {
+		return true
+	}
+
+	// Otherwise, the point cannot be inserted for some unknown reason.
+	// (which should never happen)
 	return false
 }
