@@ -13,8 +13,8 @@ func NewXY(x, y float64) *XY {
 
 // Axis-Aligned bounding box structure with center and half dimension
 type AABB struct {
-	Center XY
-	HalfDimension XY
+	TopLeft     XY
+	BottomRight XY
 }
 
 // creates a new aabb and returns its address
