@@ -165,3 +165,27 @@ func (qt *QuadTree) subDivide() {
 	}
 	qt.points = nil
 }
+
+func (qt *QuadTree) SearchArea(a *AABB) []*XY {
+	results := make([]*XY, 0, node_capacity)
+
+	if !qt.boundary.IntersectsAABB(a) {
+		return results
+	}
+
+	for _, v := range qt.points {
+		if a.ContainsPoint(v) {
+			results = append(results, v)
+		}
+	}
+
+	if qt.northWest == nil {
+		return results
+	}
+
+	results = append(results, qt.northWest.SearchArea(a)...)
+	results = append(results, qt.northEast.SearchArea(a)...)
+	results = append(results, qt.southWest.SearchArea(a)...)
+	results = append(results, qt.southEast.SearchArea(a)...)
+	return results
+}

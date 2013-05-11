@@ -77,3 +77,35 @@ func TestQTInsert(t *testing.T) {
 		}
 	}
 }
+
+var qtSearchAreaTests = []struct {
+	area *AABB
+	exp  *XY
+}{
+	{&AABB{XY{5, 5}, XY{1, 1}}, &XY{5, 5}},
+	{&AABB{XY{-5, 5}, XY{1, 1}}, &XY{-5, 5}},
+	{&AABB{XY{-5, -5}, XY{1, 1}}, &XY{-5, -5}},
+	{&AABB{XY{5, -5}, XY{1, 1}}, &XY{5, -5}},
+	{&AABB{XY{11, 0}, XY{1, 1}}, nil},
+	{&AABB{XY{-11, 0}, XY{1, 1}}, nil},
+	{&AABB{XY{0, 11}, XY{1, 1}}, nil},
+	{&AABB{XY{0, -11}, XY{1, 1}}, nil},
+	{&AABB{XY{0, -11}, XY{1, 1}}, nil},
+}
+
+func TestQTSearchArea(t *testing.T) {
+	for i, v := range qtSearchAreaTests {
+		out := qtRoot.SearchArea(v.area)
+		if len(out) == 0 {
+			if v.exp == nil {
+				continue
+			} else {
+				t.Errorf("%d. %v with input = %v: output %v expected %v", i, qtRoot, v.area, out, v.exp)
+			}
+			continue
+		}
+		if *out[0] != *v.exp {
+			t.Errorf("%d. %v with input = %v: output %v expected %v", i, qtRoot, v.area, *out[0], *v.exp)
+		}
+	}
+}
