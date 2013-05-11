@@ -51,3 +51,29 @@ func TestAABBIntersctsAABB(t *testing.T) {
 		}
 	}
 }
+
+var qtRoot = New(AABB{XY{0, 0}, XY{10, 10}})
+
+var qtInsertTests = []struct {
+	pt  *XY
+	exp bool
+}{
+	{&XY{5, 5}, true},
+	{&XY{-5, 5}, true},
+	{&XY{-5, -5}, true},
+	{&XY{5, -5}, true},
+	{&XY{0, 0}, true},
+	{&XY{11, 0}, false},
+	{&XY{-11, 0}, false},
+	{&XY{0, -11}, false},
+	{&XY{0, 11}, false},
+}
+
+func TestQTInsert(t *testing.T) {
+	for i, v := range qtInsertTests {
+		out := qtRoot.Insert(v.pt)
+		if out != v.exp {
+			t.Errorf("%d. %v with input = %v: output %v expected %v", i, qtRoot, v.pt, out, v.exp)
+		}
+	}
+}
