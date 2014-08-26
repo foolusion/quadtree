@@ -41,6 +41,7 @@ var intersectsAABBTests = []struct {
 	{&AABB{XY{0, 0}, XY{1, 1}}, &AABB{XY{0, -3}, XY{1, 1}}, false}, // 1 above 2
 	{&AABB{XY{0, 0}, XY{1, 1}}, &AABB{XY{3, 0}, XY{1, 1}}, false},  // 1 left of 2
 	{&AABB{XY{0, 0}, XY{1, 1}}, &AABB{XY{0, 3}, XY{1, 1}}, false},  // 1 under 2
+
 }
 
 func TestAABBIntersctsAABB(t *testing.T) {
@@ -52,7 +53,7 @@ func TestAABBIntersctsAABB(t *testing.T) {
 	}
 }
 
-var qtRoot = New(AABB{XY{0, 0}, XY{10, 10}})
+var qtRoot = New(AABB{XY{0, 0}, XY{10, 10}}, 4)
 
 var qtInsertTests = []struct {
 	pt  *XY

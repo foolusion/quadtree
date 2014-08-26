@@ -5,9 +5,6 @@
 // http://en.wikipedia.org/wiki/Quadtree.
 package quadtree
 
-// node_capacity is the maximum number of points allowed in a quadtree node
-var node_capacity int = 4
-
 // XY is a simple coordinate structure for points and vectors
 type XY struct {
 	X float64
@@ -69,8 +66,9 @@ func (aabb *AABB) IntersectsAABB(other *AABB) bool {
 
 // QuadTree represents the quadtree data structure.
 type QuadTree struct {
-	boundary  AABB
-	points    []*XY
+	boundary      AABB
+	points        []*XY
+	nodeCapacity int
 	northWest *QuadTree
 	northEast *QuadTree
 	southWest *QuadTree
@@ -78,10 +76,15 @@ type QuadTree struct {
 }
 
 // New creates a new quadtree node that is bounded by boundary and contains
-// node_capacity points.
-func New(boundary AABB) *QuadTree {
-	points := make([]*XY, 0, node_capacity)
-	qt := &QuadTree{boundary: boundary, points: points}
+// nodeCapacity points.
+// nodeCapacity is the maximum number of points allowed in a quadtree node
+func New(boundary AABB, nodeCapacity int) *QuadTree {
+	points := make([]*XY, 0, nodeCapacity)
+	qt := &QuadTree{
+		boundary: boundary,
+		points: points,
+		nodeCapacity: nodeCapacity,
+	}
 	return qt
 }
 
@@ -132,22 +135,22 @@ func (qt *QuadTree) subDivide() {
 	box := AABB{
 		XY{qt.boundary.center.X - qt.boundary.halfDim.X/2, qt.boundary.center.Y + qt.boundary.halfDim.Y/2},
 		XY{qt.boundary.halfDim.X / 2, qt.boundary.halfDim.Y / 2}}
-	qt.northWest = New(box)
+	qt.northWest = New(box, qt.nodeCapacity)
 
 	box = AABB{
 		XY{qt.boundary.center.X + qt.boundary.halfDim.X/2, qt.boundary.center.Y + qt.boundary.halfDim.Y/2},
 		XY{qt.boundary.halfDim.X / 2, qt.boundary.halfDim.Y / 2}}
-	qt.northEast = New(box)
+	qt.northEast = New(box, qt.nodeCapacity)
 
 	box = AABB{
 		XY{qt.boundary.center.X - qt.boundary.halfDim.X/2, qt.boundary.center.Y - qt.boundary.halfDim.Y/2},
 		XY{qt.boundary.halfDim.X / 2, qt.boundary.halfDim.Y / 2}}
-	qt.southWest = New(box)
+	qt.southWest = New(box, qt.nodeCapacity)
 
 	box = AABB{
 		XY{qt.boundary.center.X + qt.boundary.halfDim.X/2, qt.boundary.center.Y - qt.boundary.halfDim.Y/2},
 		XY{qt.boundary.halfDim.X / 2, qt.boundary.halfDim.Y / 2}}
-	qt.southEast = New(box)
+	qt.southEast = New(box, qt.nodeCapacity)
 
 	for _, v := range qt.points {
 		if qt.northWest.Insert(v) {
@@ -167,7 +170,7 @@ func (qt *QuadTree) subDivide() {
 }
 
 func (qt *QuadTree) SearchArea(a *AABB) []*XY {
-	results := make([]*XY, 0, node_capacity)
+	results := make([]*XY, 0, qt.nodeCapacity)
 
 	if !qt.boundary.IntersectsAABB(a) {
 		return results
